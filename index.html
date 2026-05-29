@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>全球学生约会开销地图 2026</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#atlas" aria-label="全球学生约会开销地图">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span>
+            <strong>Dating Cost Atlas</strong>
+            <small>学生版 2026</small>
+          </span>
+        </a>
+        <nav class="nav-links" aria-label="页面导航">
+          <a href="#atlas">地图</a>
+          <a href="#rankings">榜单</a>
+          <a href="#simulator">分摊</a>
+          <a href="#dataset">数据</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="hero-grid" id="atlas" aria-label="全球学生约会开销仪表盘">
+          <aside class="control-panel panel" aria-label="筛选控制">
+            <div class="section-kicker">数据模型</div>
+            <h1>全球学生约会开销地图</h1>
+            <p class="lede">
+              用学生月预算、城市约会篮子、青年收入代理和男女分摊方式，比较一次约会在全球城市里的真实压力。
+            </p>
+
+            <label class="field-label" for="citySearch">城市搜索</label>
+            <div class="search-row">
+              <input id="citySearch" type="search" placeholder="上海、Seoul、Paris..." autocomplete="off" />
+              <button id="clearSearch" class="icon-button" type="button" aria-label="清空搜索">×</button>
+            </div>
+
+            <label class="field-label" for="regionFilter">地区</label>
+            <select id="regionFilter"></select>
+
+            <div class="field-label">约会类型</div>
+            <div class="segmented" id="basketTabs" role="tablist" aria-label="约会类型"></div>
+
+            <div class="field-label">付款模式</div>
+            <div class="segmented" id="splitTabs" role="tablist" aria-label="付款模式"></div>
+
+            <div class="budget-box">
+              <div>
+                <label class="field-label" for="budgetInput">月生活预算</label>
+                <strong id="budgetReadout">$0</strong>
+              </div>
+              <input id="budgetInput" type="range" min="120" max="2600" step="10" />
+              <div class="range-labels">
+                <span>$120</span>
+                <span>$2600</span>
+              </div>
+            </div>
+
+            <div class="budget-box">
+              <div>
+                <label class="field-label" for="datesInput">每月约会次数</label>
+                <strong id="datesReadout">2 次</strong>
+              </div>
+              <input id="datesInput" type="range" min="1" max="12" step="1" value="2" />
+              <div class="range-labels">
+                <span>1</span>
+                <span>12</span>
+              </div>
+            </div>
+          </aside>
+
+          <section class="map-panel panel" aria-label="全球地图">
+            <div class="map-header">
+              <div>
+                <div class="section-kicker">Global View</div>
+                <h2 id="mapTitle">全球 100 城学生约会压力</h2>
+              </div>
+              <div class="map-stat-stack">
+                <span><b id="medianCost">$0</b> 中位数</span>
+                <span><b id="hotspotCity">-</b> 最贵城市</span>
+              </div>
+            </div>
+
+            <div class="map-canvas-wrap">
+              <canvas id="worldMap" width="1200" height="650" aria-label="全球城市约会成本点状地图"></canvas>
+              <div id="mapTooltip" class="map-tooltip" role="status"></div>
+              <div class="map-legend" id="mapLegend" aria-label="地区图例"></div>
+            </div>
+          </section>
+
+          <aside class="insight-panel panel" aria-label="选中城市洞察">
+            <div class="city-identity">
+              <span id="selectedRegionPill">地区</span>
+              <h2 id="selectedCity">城市</h2>
+              <p id="selectedCountry">国家</p>
+            </div>
+
+            <div class="metric-grid">
+              <div class="metric">
+                <small>一次约会</small>
+                <strong id="dateCost">$0</strong>
+              </div>
+              <div class="metric">
+                <small>占月预算</small>
+                <strong id="budgetShare">0%</strong>
+              </div>
+              <div class="metric">
+                <small>打工小时</small>
+                <strong id="workHours">0h</strong>
+              </div>
+              <div class="metric">
+                <small>月度约会账单</small>
+                <strong id="monthlyDating">$0</strong>
+              </div>
+            </div>
+
+            <div class="pressure-meter" aria-label="学生压力指数">
+              <div class="meter-top">
+                <span>学生压力指数</span>
+                <b id="pressureLabel">Low</b>
+              </div>
+              <div class="meter-track">
+                <span id="pressureFill"></span>
+              </div>
+            </div>
+
+            <div class="mini-note" id="cityNarrative"></div>
+          </aside>
+        </section>
+
+        <section class="analysis-grid" id="rankings" aria-label="约会开销分析">
+          <section class="panel leaderboard-panel">
+            <div class="panel-heading">
+              <div>
+                <div class="section-kicker">Ranking</div>
+                <h2>学生负担榜</h2>
+              </div>
+              <button id="rankToggle" class="quiet-button" type="button">按负担排序</button>
+            </div>
+            <div id="leaderboard" class="leaderboard"></div>
+          </section>
+
+          <section class="panel receipt-panel">
+            <div class="panel-heading">
+              <div>
+                <div class="section-kicker">Basket</div>
+                <h2>一次约会账单</h2>
+              </div>
+              <span id="basketBadge">普通晚餐</span>
+            </div>
+            <div id="receiptLines" class="receipt-lines"></div>
+          </section>
+
+          <section class="panel split-panel" id="simulator">
+            <div class="panel-heading">
+              <div>
+                <div class="section-kicker">Gender Split</div>
+                <h2>男女分摊压力</h2>
+              </div>
+              <span id="splitBadge">AA</span>
+            </div>
+            <div class="split-bars">
+              <div>
+                <div class="split-label"><span>男生支付</span><b id="malePay">$0</b></div>
+                <div class="split-track"><span id="maleBar"></span></div>
+                <small id="maleBurden">0% 可用现金压力</small>
+              </div>
+              <div>
+                <div class="split-label"><span>女生支付</span><b id="femalePay">$0</b></div>
+                <div class="split-track female"><span id="femaleBar"></span></div>
+                <small id="femaleBurden">0% 可用现金压力</small>
+              </div>
+            </div>
+            <div class="mini-note" id="splitNarrative"></div>
+          </section>
+
+          <section class="panel scatter-panel">
+            <div class="panel-heading">
+              <div>
+                <div class="section-kicker">Affordability</div>
+                <h2>城市压力分布</h2>
+              </div>
+              <span>横轴约会成本，纵轴预算占比</span>
+            </div>
+            <div id="scatterPlot" class="scatter-plot" aria-label="约会成本和预算占比分布图"></div>
+          </section>
+        </section>
+
+        <section class="compare-section" aria-label="城市对比">
+          <div class="compare-heading">
+            <div>
+              <div class="section-kicker">Compare</div>
+              <h2>城市横向比较</h2>
+            </div>
+            <p>筛选会同步影响榜单、地图和散点图。</p>
+          </div>
+          <div class="compare-table-wrap" id="dataset">
+            <table>
+              <thead>
+                <tr>
+                  <th>城市</th>
+                  <th>地区</th>
+                  <th>一次约会</th>
+                  <th>月预算占比</th>
+                  <th>打工小时</th>
+                  <th>性别压力差</th>
+                </tr>
+              </thead>
+              <tbody id="cityTable"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="method-section panel" aria-label="方法和来源">
+          <div>
+            <div class="section-kicker">Method</div>
+            <h2>方法与数据边界</h2>
+          </div>
+          <div class="method-grid">
+            <p>
+              城市物价为 2026 学生约会篮子模型估算，使用城市生活成本指数、PPP 价格水平、学生月预算代理、青年打工收入代理和性别收入差代理校准。生产版本可接入 Numbeo API、World Bank API、ILOSTAT 和 UNESCO UIS 自动刷新。
+            </p>
+            <ul>
+              <li><a href="https://www.numbeo.com/cost-of-living/" target="_blank" rel="noreferrer">Numbeo Cost of Living</a>: 城市餐饮、交通、娱乐价格参考。</li>
+              <li><a href="https://data.worldbank.org/indicator/PA.NUS.PPP" target="_blank" rel="noreferrer">World Bank PPP</a>: 跨国购买力和价格水平校准。</li>
+              <li><a href="https://ilostat.ilo.org/data/" target="_blank" rel="noreferrer">ILOSTAT</a>: 工资、青年就业和性别收入差参考。</li>
+              <li><a href="https://data.unesco.org/explore/dataset/uis001/api/" target="_blank" rel="noreferrer">UNESCO UIS</a>: 高等教育和学生规模背景。</li>
+              <li><a href="https://usnewsroom.bmo.com/2026-02-11-Date-flation-Hits-Hard-Average-Date-Spend-Nears-200-BMO-Real-Financial-Progress-Index" target="_blank" rel="noreferrer">BMO 2026 Date-flation</a>: 美国约会通胀参考锚点。</li>
+            </ul>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
